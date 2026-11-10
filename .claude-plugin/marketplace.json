@@ -1,0 +1,11 @@
+{
+  "name": "fastclaude",
+  "owner": { "name": "FastClaude maintainers" },
+  "plugins": [
+    {
+      "name": "fastclaude",
+      "source": "./",
+      "description": "Phone push notifications for Claude Code via ntfy."
+    }
+  ]
+}

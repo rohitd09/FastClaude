@@ -1,0 +1,5 @@
+{
+  "name": "fastclaude",
+  "version": "0.1.0",
+  "description": "FastClaude: push a notification to your phone (via the ntfy app) when Claude Code finishes or needs your input."
+}
