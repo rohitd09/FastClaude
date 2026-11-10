@@ -44,17 +44,17 @@ Restart Claude Code (exit and run `claude` again) so the hooks load.
 /fastclaude:notify-setup
 ```
 
-Setup checks your Node version, creates a private random topic (looks like `cc-3f9a...`), and shows it to you along with a link `https://ntfy.sh/<topic>`.
+Setup checks your Node version and creates a private random topic (looks like `cc-3f9a...`). It then walks you through the rest by asking questions:
 
-### Step 4: Subscribe your phone
+1. **"Is the ntfy app installed on your phone?"** If you answer No, it gives you the install links and asks again.
+2. Once you answer Yes, it shows your topic and how to subscribe: in the ntfy app, tap **+**, enter the topic exactly as shown, and tap **Subscribe**. Leave the server as `ntfy.sh` unless you self-host.
+3. **"Have you subscribed to the topic?"** If you answer No, it shows the topic and instructions again.
 
-In the ntfy app, tap **+**, enter the topic exactly as shown, and tap **Subscribe**. Leave the server as `ntfy.sh` unless you self-host.
+### Step 4: Confirm the test notification
 
-### Step 5: Confirm the test notification
+Once you've subscribed, setup sends a test push titled **Claude: setup-test** and asks whether it arrived. If it didn't, setup checks whether the ntfy server received it and helps you fix it. See also [Troubleshooting](#troubleshooting).
 
-Setup sends a test push titled **Claude: setup-test**. Tell Claude whether it arrived. If it didn't, see [Troubleshooting](#troubleshooting).
-
-### Step 6 (optional): Answer from your phone
+### Step 5 (optional): Answer from your phone
 
 Tapping a notification opens https://claude.ai/code. To act on the session from there, run `/config` in Claude Code, turn on **Remote Control for all sessions**, and sign in to the Claude app on your phone with the same account.
 
@@ -141,12 +141,10 @@ This section is for an AI coding agent (Claude Code or similar) asked to set up 
 
    Do not rotate an existing topic unless the user asked. Rotating breaks their current phone subscription.
 
-5. **Phone subscription. HUMAN required.** You cannot install apps on or control the user's phone. Show the user:
-   - The topic string.
-   - The link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted).
-   - A QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`.
-
-   Then tell them: install **ntfy** from Google Play or F-Droid, tap **+**, enter the topic, tap **Subscribe**. Remind them the topic is a secret. Wait for them to confirm they subscribed.
+5. **Phone subscription. HUMAN required.** You cannot install apps on or control the user's phone. The skill handles this as a loop of questions; follow it:
+   - Ask whether the **ntfy** app is installed. If not, give the Google Play / F-Droid links and ask again until they say yes.
+   - Then show the topic, the link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted), and the instructions: tap **+**, enter the topic, tap **Subscribe**. Add a QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`. Remind them the topic is a secret.
+   - Ask whether they subscribed. If not, show the topic and instructions again and ask again. Do not send the test push until they say yes.
 
 6. **Send a test push.** Run:
    ```
