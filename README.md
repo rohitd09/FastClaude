@@ -48,6 +48,8 @@ Setup checks your Node version and creates a private random topic (looks like `c
 
 1. **"Is the ntfy app installed on your phone?"** If you answer No, it gives you the install links and asks again.
 2. Once you answer Yes, it shows your topic and how to subscribe: in the ntfy app, tap **+**, enter the topic exactly as shown, and tap **Subscribe**. Leave the server as `ntfy.sh` unless you self-host.
+   - **Turn on Instant delivery (required for instant notifications).** Tap the subscription, then ⋮ → **Subscription settings** → **Instant delivery**. Without it, the Google Play version of ntfy delivers through Firebase, and Android can delay notifications by minutes or stop them entirely. A small permanent "ntfy" notification appears while it runs; that's expected.
+   - In Android Settings → Apps → ntfy → **Battery**, choose **Unrestricted**. On Xiaomi, Oppo, Vivo, Realme or OnePlus phones, also turn on **Autostart** for ntfy.
 3. **"Have you subscribed to the topic?"** If you answer No, it shows the topic and instructions again.
 
 ### Step 4: Confirm the test notification
@@ -69,7 +71,7 @@ Tapping a notification opens https://claude.ai/code. To act on the session from 
 |---|---|
 | No test notification | Check the topic in the app matches exactly. Open `https://ntfy.sh/<topic>` in a browser and see whether the message appears there. |
 | Test works, real events don't | Restart Claude Code after installing the plugin. Run `/hooks` to confirm the `Stop` and `Notification` hooks are listed. |
-| Notifications arrive late | In Android settings, turn off battery optimization for ntfy. |
+| Notifications arrive minutes late, or the first few arrive and then stop | Turn on **Instant delivery** for the subscription (⋮ → Subscription settings) and set ntfy's battery to **Unrestricted** in Android settings. |
 | `fetch is not defined` | Your Node is older than 18. Upgrade Node. |
 
 ### Uninstall
@@ -143,7 +145,7 @@ This section is for an AI coding agent (Claude Code or similar) asked to set up 
 
 5. **Phone subscription. HUMAN required.** You cannot install apps on or control the user's phone. The skill handles this as a loop of questions; follow it:
    - Ask whether the **ntfy** app is installed. If not, give the Google Play / F-Droid links and ask again until they say yes.
-   - Then show the topic, the link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted), and the instructions: tap **+**, enter the topic, tap **Subscribe**. Add a QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`. Remind them the topic is a secret.
+   - Then show the topic, the link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted), and the instructions: tap **+**, enter the topic, tap **Subscribe**, then turn on **Instant delivery** for the subscription and set ntfy's Android battery setting to **Unrestricted**. Without Instant delivery, pushes can be delayed by minutes or dropped. Add a QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`. Remind them the topic is a secret.
    - Ask whether they subscribed. If not, show the topic and instructions again and ask again. Do not send the test push until they say yes.
 
 6. **Send a test push.** Run:
@@ -156,7 +158,7 @@ This section is for an AI coding agent (Claude Code or similar) asked to set up 
    ```
    A line containing `Test notification from Claude Code` means the server received it.
 
-7. **Confirm on the phone. HUMAN required.** Ask the user whether the test notification arrived. If the server received it but the phone didn't, the user should check the topic spelling in the app and turn off battery optimization for ntfy.
+7. **Confirm on the phone. HUMAN required.** Ask the user whether the test notification arrived. If the server received it but the phone didn't, the user should check the topic spelling in the app, turn on **Instant delivery** for the subscription, and set ntfy's battery to **Unrestricted**.
 
 8. **Optional, answer from the phone. HUMAN required.** Tell the user they can run `/config`, turn on **Remote Control for all sessions**, and sign in to the Claude app on their phone with the same account. You cannot do this for them because it involves their account login.
 

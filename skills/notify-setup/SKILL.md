@@ -44,6 +44,8 @@ Show the topic in a code block on its own line so it is easy to copy, then these
 3. In **Topic name**, enter the topic exactly as shown above.
 4. Leave **Use another server** off (if self-hosted: turn it on and enter the server URL).
 5. Tap **Subscribe**.
+6. Turn on **Instant delivery**: tap the subscription, then ⋮ → **Subscription settings** → **Instant delivery**. Without it, the Google Play version delivers through Firebase, which Android delays by minutes or drops. A small permanent "ntfy" notification while it runs is expected.
+7. In Android Settings → Apps → ntfy → **Battery**, choose **Unrestricted**. On Xiaomi, Oppo, Vivo, Realme or OnePlus phones, also turn on **Autostart** for ntfy.
 
 Also give the link `<server>/<topic>` (default `https://ntfy.sh/<topic>`). If `qrencode` is on PATH, print a QR code with `qrencode -t ANSIUTF8 "<server>/<topic>"`; otherwise skip it.
 
@@ -61,13 +63,13 @@ Ask: **"Have you subscribed to the topic in the ntfy app?"** with options **Yes*
 Run:
 `echo '{"cwd":"setup-test","message":"Test notification from Claude Code"}' | CLAUDE_PLUGIN_DATA="${CLAUDE_PLUGIN_DATA}" node "${CLAUDE_PLUGIN_ROOT}/scripts/notify.js" input`
 
-Then ask: **"Did the test notification arrive on your phone?"** with options **Yes** and **No**.
+Then ask: **"Did the test notification arrive on your phone within a few seconds?"** with options **Yes** and **No**.
 
 - **No:** check the server received it with `curl -s "<server>/<topic>/json?poll=1&since=5m"`.
-  - If the output contains `Test notification from Claude Code`, the server got it. The phone side is the problem: the topic in the app is probably mistyped, or Android battery optimization is delaying ntfy. Show the topic and instructions from step 4 again, then retry step 6.
+  - If the output contains `Test notification from Claude Code`, the server got it. The phone side is the problem: the topic in the app is probably mistyped, **Instant delivery** is off for the subscription, or Android battery optimization is delaying ntfy. If notifications arrive minutes late or stop after the first few, it is almost always Instant delivery or battery optimization. Show the topic and instructions from step 4 again, then retry step 6.
   - If not, the send failed (network, firewall or server). Report that.
 - **Yes:** go to step 7.
 
 ## 7. Wrap up
 
-Tell the user they will get a push on every task finish and every input request. Tapping a notification opens https://claude.ai/code. To answer the session from there, they should turn on **Remote Control for all sessions** in `/config` and sign in to the Claude app with the same account. To get a new topic later, run this skill again and ask to rotate.
+Tell the user they will get a push on every task finish and every input request. Remind them to keep **Instant delivery** on and ntfy's battery setting on **Unrestricted**, or pushes will be delayed again. Tapping a notification opens https://claude.ai/code. To answer the session from there, they should turn on **Remote Control for all sessions** in `/config` and sign in to the Claude app with the same account. To get a new topic later, run this skill again and ask to rotate.
