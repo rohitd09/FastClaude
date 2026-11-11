@@ -2,7 +2,7 @@
 
 # FastClaude
 
-Get a push notification on your Android phone when Claude Code **finishes a task** or **needs your input** (a permission prompt or a question). Tap the notification to open your sessions at claude.ai/code and answer from your phone.
+Get a push notification on your phone (Android or iPhone) when Claude Code **finishes a task** or **needs your input** (a permission prompt or a question). Tap the notification to open your sessions at claude.ai/code and answer from your phone.
 
 It uses Claude Code hooks and the free [ntfy](https://ntfy.sh) app. There is no server to run and no account to create.
 
@@ -21,11 +21,15 @@ This plugin is for the cases those toggles don't cover:
 
 - **Node.js 18 or newer** on the machine that runs Claude Code. Check with `node --version`. The hook uses Node's built-in `fetch`.
 - **Claude Code** with plugin support (`/plugin` command available).
-- An **Android phone** with internet access.
+- An **Android phone or iPhone** with internet access.
 
 ### Step 1: Install the ntfy app on your phone
 
-Install **ntfy** from [Google Play](https://play.google.com/store/apps/details?id=io.heckel.ntfy) or [F-Droid](https://f-droid.org/packages/io.heckel.ntfy/). Open it once and allow notifications when Android asks.
+Install **ntfy**:
+- **Android:** [Google Play](https://play.google.com/store/apps/details?id=io.heckel.ntfy) or [F-Droid](https://f-droid.org/packages/io.heckel.ntfy/)
+- **iPhone:** [App Store](https://apps.apple.com/app/ntfy/id1625396347)
+
+Open it once and allow notifications when your phone asks.
 
 ### Step 2: Add the plugin to Claude Code
 
@@ -46,10 +50,11 @@ Restart Claude Code (exit and run `claude` again) so the hooks load.
 
 Setup checks your Node version and creates a private random topic (looks like `cc-3f9a...`). It then walks you through the rest by asking questions:
 
-1. **"Is the ntfy app installed on your phone?"** If you answer No, it gives you the install links and asks again.
+1. **"Which phone will get the notifications?"** Android or iPhone. Then **"Is the ntfy app installed on your phone?"** If you answer No, it gives you the install links and asks again.
 2. Once you answer Yes, it shows your topic and how to subscribe: in the ntfy app, tap **+**, enter the topic exactly as shown, and tap **Subscribe**. Leave the server as `ntfy.sh` unless you self-host.
-   - **Turn on Instant delivery (required for instant notifications).** Tap the subscription, then ⋮ → **Subscription settings** → **Instant delivery**. Without it, the Google Play version of ntfy delivers through Firebase, and Android can delay notifications by minutes or stop them entirely. A small permanent "ntfy" notification appears while it runs; that's expected.
-   - In Android Settings → Apps → ntfy → **Battery**, choose **Unrestricted**. On Xiaomi, Oppo, Vivo, Realme or OnePlus phones, also turn on **Autostart** for ntfy.
+   - **iPhone:** nothing more to do. Pushes arrive through Apple's push service, and iOS has no Instant delivery or battery setting to change.
+   - **Android: turn on Instant delivery (required for instant notifications).** Tap the subscription, then ⋮ → **Subscription settings** → **Instant delivery**. Without it, the Google Play version of ntfy delivers through Firebase, and Android can delay notifications by minutes or stop them entirely. A small permanent "ntfy" notification appears while it runs; that's expected.
+   - **Android:** in Settings → Apps → ntfy → **Battery**, choose **Unrestricted**. On Xiaomi, Oppo, Vivo, Realme or OnePlus phones, also turn on **Autostart** for ntfy.
 3. **"Have you subscribed to the topic?"** If you answer No, it shows the topic and instructions again.
 
 ### Step 4: Confirm the test notification
@@ -63,7 +68,7 @@ Tapping a notification opens https://claude.ai/code. To act on the session from 
 ### Rotate the topic or use your own server
 
 - **New topic:** run `/fastclaude:notify-setup` and say "rotate my topic". Then subscribe to the new topic in ntfy and remove the old one.
-- **Self-hosted ntfy:** run `/fastclaude:notify-setup` and give it your server URL. In the ntfy app, use that server URL when subscribing.
+- **Self-hosted ntfy:** run `/fastclaude:notify-setup` and give it your server URL. In the ntfy app, use that server URL when subscribing. For iPhones, also set `upstream-base-url: "https://ntfy.sh"` in the server config, or iOS won't get instant pushes.
 
 ### Troubleshooting
 
@@ -71,7 +76,8 @@ Tapping a notification opens https://claude.ai/code. To act on the session from 
 |---|---|
 | No test notification | Check the topic in the app matches exactly. Open `https://ntfy.sh/<topic>` in a browser and see whether the message appears there. |
 | Test works, real events don't | Restart Claude Code after installing the plugin. Run `/hooks` to confirm the `Stop` and `Notification` hooks are listed. |
-| Notifications arrive minutes late, or the first few arrive and then stop | Turn on **Instant delivery** for the subscription (⋮ → Subscription settings) and set ntfy's battery to **Unrestricted** in Android settings. |
+| iPhone: no notifications, but they show in the app | In iOS Settings → Notifications → ntfy, allow notifications. Check Focus / Do Not Disturb is off. Self-hosted: set `upstream-base-url`. |
+| Android: notifications arrive minutes late, or the first few arrive and then stop | Turn on **Instant delivery** for the subscription (⋮ → Subscription settings) and set ntfy's battery to **Unrestricted** in Android settings. |
 | `fetch is not defined` | Your Node is older than 18. Upgrade Node. |
 
 ### Uninstall
@@ -144,8 +150,8 @@ This section is for an AI coding agent (Claude Code or similar) asked to set up 
    Do not rotate an existing topic unless the user asked. Rotating breaks their current phone subscription.
 
 5. **Phone subscription. HUMAN required.** You cannot install apps on or control the user's phone. The skill handles this as a loop of questions; follow it:
-   - Ask whether the **ntfy** app is installed. If not, give the Google Play / F-Droid links and ask again until they say yes.
-   - Then show the topic, the link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted), and the instructions: tap **+**, enter the topic, tap **Subscribe**, then turn on **Instant delivery** for the subscription and set ntfy's Android battery setting to **Unrestricted**. Without Instant delivery, pushes can be delayed by minutes or dropped. Add a QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`. Remind them the topic is a secret.
+   - Ask whether they use Android or iPhone, then whether the **ntfy** app is installed. If not, give the Google Play / F-Droid links (Android) or the App Store link (iPhone) and ask again until they say yes.
+   - Then show the topic, the link `https://ntfy.sh/<topic>` (or `<server>/<topic>` if self-hosted), and the instructions: tap **+**, enter the topic, tap **Subscribe**. On Android only, then turn on **Instant delivery** for the subscription and set ntfy's Android battery setting to **Unrestricted**. Without Instant delivery, pushes can be delayed by minutes or dropped. Add a QR code if `qrencode` is on PATH: `qrencode -t ANSIUTF8 "https://ntfy.sh/<topic>"`. Remind them the topic is a secret.
    - Ask whether they subscribed. If not, show the topic and instructions again and ask again. Do not send the test push until they say yes.
 
 6. **Send a test push.** Run:
@@ -158,7 +164,7 @@ This section is for an AI coding agent (Claude Code or similar) asked to set up 
    ```
    A line containing `Test notification from Claude Code` means the server received it.
 
-7. **Confirm on the phone. HUMAN required.** Ask the user whether the test notification arrived. If the server received it but the phone didn't, the user should check the topic spelling in the app, turn on **Instant delivery** for the subscription, and set ntfy's battery to **Unrestricted**.
+7. **Confirm on the phone. HUMAN required.** Ask the user whether the test notification arrived. If the server received it but the phone didn't, the user should check the topic spelling in the app. On Android, also turn on **Instant delivery** for the subscription and set ntfy's battery to **Unrestricted**. On iPhone, check that notifications are allowed for ntfy in iOS Settings.
 
 8. **Optional, answer from the phone. HUMAN required.** Tell the user they can run `/config`, turn on **Remote Control for all sessions**, and sign in to the Claude app on their phone with the same account. You cannot do this for them because it involves their account login.
 

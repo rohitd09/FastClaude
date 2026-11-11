@@ -20,19 +20,21 @@ Run `node --version`. It must be 18 or newer (the hook uses built-in `fetch`). I
 If `${CLAUDE_PLUGIN_DATA}/topic` already exists and the user did not ask to rotate it, reuse it. Otherwise create the directory and generate a new one:
 `node -e "console.log('cc-'+require('crypto').randomBytes(16).toString('hex'))"`
 Write the value (no trailing spaces) to `${CLAUDE_PLUGIN_DATA}/topic`.
-If the user wants a self-hosted server, write its URL to `${CLAUDE_PLUGIN_DATA}/server`.
+If the user wants a self-hosted server, write its URL to `${CLAUDE_PLUGIN_DATA}/server`. If they use an iPhone with a self-hosted server, tell them the server config needs `upstream-base-url: "https://ntfy.sh"`, or iOS will not get instant pushes.
 
 Do not show the topic yet.
 
-## 3. Ask: is the app installed?
+## 3. Ask: which phone, and is the app installed?
 
-Ask: **"Is the ntfy app installed on your phone?"** with options **Yes** and **No**.
+Ask: **"Which phone will get the notifications?"** with options **Android** and **iPhone**. Remember the answer; steps 4 and 6 depend on it.
+
+Then ask: **"Is the ntfy app installed on your phone?"** with options **Yes** and **No**.
 
 - **No:** tell the user to install **ntfy** (publisher: Philipp Heckel):
-  - Google Play: https://play.google.com/store/apps/details?id=io.heckel.ntfy
-  - F-Droid: https://f-droid.org/packages/io.heckel.ntfy/
+  - Android: [Google Play](https://play.google.com/store/apps/details?id=io.heckel.ntfy) or [F-Droid](https://f-droid.org/packages/io.heckel.ntfy/)
+  - iPhone: [App Store](https://apps.apple.com/app/ntfy/id1625396347)
 
-  Tell them to open it once and allow notifications. Then ask question 3 again. Repeat until they answer Yes.
+  Tell them to open it once and allow notifications. Then ask the install question again. Repeat until they answer Yes.
 - **Yes:** go to step 4.
 
 ## 4. Give the topic and subscribe instructions
@@ -44,6 +46,8 @@ Show the topic in a code block on its own line so it is easy to copy, then these
 3. In **Topic name**, enter the topic exactly as shown above.
 4. Leave **Use another server** off (if self-hosted: turn it on and enter the server URL).
 5. Tap **Subscribe**.
+For **Android** only, add these two steps (skip them for iPhone; iOS has no such settings and pushes arrive through Apple's push service):
+
 6. Turn on **Instant delivery**: tap the subscription, then ⋮ → **Subscription settings** → **Instant delivery**. Without it, the Google Play version delivers through Firebase, which Android delays by minutes or drops. A small permanent "ntfy" notification while it runs is expected.
 7. In Android Settings → Apps → ntfy → **Battery**, choose **Unrestricted**. On Xiaomi, Oppo, Vivo, Realme or OnePlus phones, also turn on **Autostart** for ntfy.
 
@@ -66,10 +70,10 @@ Run:
 Then ask: **"Did the test notification arrive on your phone within a few seconds?"** with options **Yes** and **No**.
 
 - **No:** check the server received it with `curl -s "<server>/<topic>/json?poll=1&since=5m"`.
-  - If the output contains `Test notification from Claude Code`, the server got it. The phone side is the problem: the topic in the app is probably mistyped, **Instant delivery** is off for the subscription, or Android battery optimization is delaying ntfy. If notifications arrive minutes late or stop after the first few, it is almost always Instant delivery or battery optimization. Show the topic and instructions from step 4 again, then retry step 6.
+  - If the output contains `Test notification from Claude Code`, the server got it. The phone side is the problem: the topic in the app is probably mistyped, **Instant delivery** is off for the subscription, or Android battery optimization is delaying ntfy. If notifications arrive minutes late or stop after the first few, it is almost always Instant delivery or battery optimization. On iPhone, check Settings → Notifications → ntfy is allowed and Focus / Do Not Disturb is off; for a self-hosted server, check `upstream-base-url`. Show the topic and instructions from step 4 again, then retry step 6.
   - If not, the send failed (network, firewall or server). Report that.
 - **Yes:** go to step 7.
 
 ## 7. Wrap up
 
-Tell the user they will get a push on every task finish and every input request. Remind them to keep **Instant delivery** on and ntfy's battery setting on **Unrestricted**, or pushes will be delayed again. Tapping a notification opens https://claude.ai/code. To answer the session from there, they should turn on **Remote Control for all sessions** in `/config` and sign in to the Claude app with the same account. To get a new topic later, run this skill again and ask to rotate.
+Tell the user they will get a push on every task finish and every input request. On Android, remind them to keep **Instant delivery** on and ntfy's battery setting on **Unrestricted**, or pushes will be delayed again. Tapping a notification opens https://claude.ai/code. To answer the session from there, they should turn on **Remote Control for all sessions** in `/config` and sign in to the Claude app with the same account. To get a new topic later, run this skill again and ask to rotate.
